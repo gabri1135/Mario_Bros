@@ -19,6 +19,7 @@ class StaticTile(Tile):
     def __init__(self, pos, surface) -> None:
         super().__init__(pos)
         self.image = surface
+        self.rect = self.image.get_rect(topleft=pos)
 
 
 class AnimatedTile(Tile):
@@ -28,6 +29,7 @@ class AnimatedTile(Tile):
         self.max = len(self.surfaces)
         self.surface_id = 0
         self.image = self.surfaces[self.surface_id]
+        self.rect = self.image.get_rect(topleft=pos)
 
     def animate(self, speed=0.2):
         self.surface_id += speed
@@ -39,41 +41,41 @@ class AnimatedTile(Tile):
         self.animate()
         super().update(velocity)
 
+
 class BlockTile(AnimatedTile):
     def __init__(self, pos, surfaces) -> None:
         super().__init__(pos, surfaces)
-    
+
     def collide(self):
         self.kill()
 
+
 class SurpriseBlockTile(AnimatedTile):
-    def __init__(self, pos, surfaces,times) -> None:
+    def __init__(self, pos, surfaces, times) -> None:
         super().__init__(pos, surfaces)
-        self.times=times
-        self.collided=False
-    
+        self.times = times
+        self.collided = 0
+
     def collide(self):
-        if self.times>0:
-            self.times-=1
-            self.collided=True
-            print(self.times)
-    
+        if self.times > 0 and self.collided == 0:
+            self.times -= 1
+            self.collided = -2
+
     def collide_animation(self):
-        if self.rect.y%tile_size!=34:
-            self.rect.y-=2
-        else:
-            self.collided=False
-            self.image= pygame.image.load('graphics/q_block/used.png')
-            
+        self.rect.y += self.collided
+        if self.rect.y % tile_size == 34:
+            self.collided = -self.collided
+        elif self.rect.y % tile_size == 0:
+            self.collided = 0
+            if self.times == 0:
+                self.image = pygame.image.load('graphics/q_block/used.png')
 
     def update(self, velocity):
-        if self.times>0:
+        if self.times > 0:
             self.animate()
 
-        if self.collided:
+        if self.collided != 0:
             self.collide_animation()
-        if self.rect.y%tile_size!=0 and not self.collided:
-            self.rect.y+=2
 
         self.rect.x -= velocity
 
@@ -82,4 +84,4 @@ class CoinTile(AnimatedTile):
     def __init__(self, pos, surfaces, star=False) -> None:
         self.star = star
         super().__init__(pos, surfaces)
-        self.rect.bottomright = (pos[0]+tile_size, pos[1]+tile_size)
+        self.rect.bottomleft = (pos[0], pos[1]+tile_size)
