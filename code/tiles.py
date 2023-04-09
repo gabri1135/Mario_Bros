@@ -1,7 +1,7 @@
 
 import pygame
 
-from settings import tile_size
+from settings import tile_size, screen_height
 
 
 class Tile(pygame.sprite.Sprite):
@@ -28,11 +28,12 @@ class AnimatedTile(Tile):
         self.surfaces = surfaces
         self.max = len(self.surfaces)
         self.surface_id = 0
+        self.animation_speed = 0.2
         self.image = self.surfaces[self.surface_id]
         self.rect = self.image.get_rect(topleft=pos)
 
-    def animate(self, speed=0.2):
-        self.surface_id += speed
+    def animate(self):
+        self.surface_id += self.animation_speed
         if self.surface_id >= self.max:
             self.surface_id -= self.max
         self.image = self.surfaces[int(self.surface_id)]
@@ -51,15 +52,18 @@ class BlockTile(AnimatedTile):
 
 
 class SurpriseBlockTile(AnimatedTile):
-    def __init__(self, pos, surfaces, times) -> None:
+    def __init__(self, pos, surfaces, times: int, type: str, spawn_surprise) -> None:
         super().__init__(pos, surfaces)
         self.times = times
         self.collided = 0
+        self.type = type
+        self.spawn_surprise = spawn_surprise
 
     def collide(self):
         if self.times > 0 and self.collided == 0:
             self.times -= 1
             self.collided = -2
+            self.spawn_surprise(self)
 
     def collide_animation(self):
         self.rect.y += self.collided
@@ -81,7 +85,45 @@ class SurpriseBlockTile(AnimatedTile):
 
 
 class CoinTile(AnimatedTile):
-    def __init__(self, pos, surfaces, star=False) -> None:
+    def __init__(self, pos, surfaces, star:int=None) -> None:
         self.star = star
         super().__init__(pos, surfaces)
         self.rect.bottomleft = (pos[0], pos[1]+tile_size)
+
+
+class SpawnCoinTile(AnimatedTile):
+    def __init__(self, surfaces, block, increment_coin) -> None:
+        pos = block.rect.topleft
+        super().__init__(pos, surfaces)
+        self.rect.bottomleft = (pos[0], pos[1])
+        self.animation_speed = 0.45
+        self.y_direction = -8
+        self.block = block
+        self.increment_coin = increment_coin
+
+    def update(self, velocity):
+        if self.y_direction > 0 and self.rect.colliderect(self.block):
+            self.increment_coin(5)
+            self.kill()
+        self.rect.y += self.y_direction
+        self.y_direction = min(self.y_direction + 0.5, 4)
+        super().update(velocity)
+
+class SpawnMushroomTile(StaticTile):
+    def __init__(self,pos, surface) -> None:
+        super().__init__(pos, surface)
+        self.rect.bottomleft = (pos[0], pos[1])
+        self.y_direction=-4
+    
+    def apply_gravity(self):
+        self.y_direction = self.y_direction + 0.4
+        self.rect.y += self.y_direction 
+
+    def update(self, velocity):
+        if self.rect.top>screen_height:
+            self.kill()
+
+        if self.y_direction>-2:
+            self.rect.x += 2
+
+        super().update(velocity)
