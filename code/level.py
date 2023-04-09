@@ -193,10 +193,10 @@ class Level:
         collided_coin = pygame.sprite.spritecollide(
             self.player.sprite, self.coin_sprites, True, collided=pygame.sprite.collide_mask)
         for coin in collided_coin:
-            if coin.star==None:
+            if coin.star == None:
                 self.increment_coin(5)
             else:
-                print('starcoin',coin.star)
+                print('starcoin', coin.star)
 
     def run(self):
         self.player_on_ground = False

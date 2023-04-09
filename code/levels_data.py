@@ -12,4 +12,4 @@ level_2 = {
     'coin': 'levels/2/level_2_coins.csv'
 }
 
-levels = [level_1,level_2]
+levels = [level_1, level_2]

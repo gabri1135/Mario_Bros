@@ -1,4 +1,5 @@
 
+from typing import Optional
 import pygame
 
 from settings import tile_size, screen_height
@@ -85,7 +86,7 @@ class SurpriseBlockTile(AnimatedTile):
 
 
 class CoinTile(AnimatedTile):
-    def __init__(self, pos, surfaces, star:int=None) -> None:
+    def __init__(self, pos, surfaces, star: Optional[int] = None) -> None:
         self.star = star
         super().__init__(pos, surfaces)
         self.rect.bottomleft = (pos[0], pos[1]+tile_size)
@@ -109,21 +110,22 @@ class SpawnCoinTile(AnimatedTile):
         self.y_direction = min(self.y_direction + 0.5, 4)
         super().update(velocity)
 
+
 class SpawnMushroomTile(StaticTile):
-    def __init__(self,pos, surface) -> None:
+    def __init__(self, pos, surface) -> None:
         super().__init__(pos, surface)
         self.rect.bottomleft = (pos[0], pos[1])
-        self.y_direction=-4
-    
+        self.y_direction = -4
+
     def apply_gravity(self):
         self.y_direction = self.y_direction + 0.4
-        self.rect.y += self.y_direction 
+        self.rect.y += self.y_direction
 
     def update(self, velocity):
-        if self.rect.top>screen_height:
+        if self.rect.top > screen_height:
             self.kill()
 
-        if self.y_direction>-2:
+        if self.y_direction > -2:
             self.rect.x += 2
 
         super().update(velocity)

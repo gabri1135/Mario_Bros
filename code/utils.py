@@ -3,12 +3,14 @@ from os import walk
 from settings import tile_size
 import pygame
 
-def import_folder(path:str):
-    surfaces=[]
-    for _,__,files in walk(path):
-        sorted_files=sorted(files,key=lambda x:int(x[:-4]))
+
+def import_folder(path: str):
+    surfaces = []
+    for _, __, files in walk(path):
+        sorted_files = sorted(files, key=lambda x: int(x[:-4]))
         for name in sorted_files:
-            surfaces.append(pygame.image.load(f'{path}/{name}').convert_alpha())
+            surfaces.append(pygame.image.load(
+                f'{path}/{name}').convert_alpha())
         return surfaces
 
 
@@ -26,5 +28,5 @@ def import_cut_graphics(id: int, path: str, size: int = tile_size):
     image_width = image.get_width()//size
     x, y = id % image_width, id//image_width
     surface = pygame.Surface((size, size), flags=pygame.SRCALPHA)
-    surface.blit(image, (0, 0), (x*size, y*size,size,size))
+    surface.blit(image, (0, 0), (x*size, y*size, size, size))
     return surface
