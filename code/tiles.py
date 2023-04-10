@@ -9,7 +9,7 @@ class Tile(pygame.sprite.Sprite):
     def __init__(self, pos) -> None:
         super().__init__()
         self.image = pygame.Surface((tile_size, tile_size))
-        self.image.fill('grey')
+        self.image.fill('red')
         self.rect = self.image.get_rect(topleft=pos)
 
     def update(self, velocity):

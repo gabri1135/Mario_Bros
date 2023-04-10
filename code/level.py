@@ -2,6 +2,7 @@ import pygame
 
 from settings import tile_size, screen_width, player_speed
 from tiles import *
+from enemies import *
 from player import Player
 from levels_data import levels
 from utils import import_csv_layout, import_cut_graphics, import_folder
@@ -49,6 +50,12 @@ class Level:
         coin_layout = import_csv_layout(level_data['coin'])
         self.coin_sprites = self.create_tile_group('coin', coin_layout)
 
+        goomba_layout = import_csv_layout(level_data['goomba'])
+        self.goomba_sprites = self.create_tile_group('goomba', goomba_layout)
+
+        goomba_constraints_layout = import_csv_layout(level_data['goomba_constraints'])
+        self.goomba_constraints_sprites = self.create_tile_group('goomba_constraints', goomba_constraints_layout)
+
         # block hit animations
         self.spawned_coins = pygame.sprite.Group()
         self.spawned_mushrooms = pygame.sprite.Group()
@@ -59,7 +66,7 @@ class Level:
 
     def create_tile_group(self, type: str, layout: list[list[str]]):
         tile_group = pygame.sprite.Group()
-        self.map_width=tile_size*200-1200
+        self.map_width = tile_size*200-1200
         for y, row in enumerate(layout):
             for x, val in enumerate(row):
                 if val != '-1':
@@ -96,6 +103,15 @@ class Level:
                                 'graphics/starcoin/animation')
                             tile = CoinTile(
                                 (x*tile_size, y*tile_size), surfaces, star=int(val)-1)
+                        tile_group.add(tile)
+                    elif type == 'goomba':
+                        surfaces = import_folder('graphics/goomba/animation')
+                        dead_surface = pygame.image.load('graphics/goomba/dead_goomba.png').convert_alpha()
+                        tile = Goomba((x*tile_size, (y+1)*tile_size),
+                                      surfaces, dead_surface, val == '0')
+                        tile_group.add(tile)
+                    elif type == 'goomba_constraints':
+                        tile = Tile((x*tile_size, y*tile_size))
                         tile_group.add(tile)
         return tile_group
 
@@ -136,9 +152,11 @@ class Level:
                     if isinstance(sprite, BlockTile):
                         player.direction.y = max(-6, player.direction.y)
                         block_parts = import_folder('graphics/block/broken')
-                        broken_tiles = [BrokenBlockTile(sprite.rect.center, block_parts[0], -0.75, -18), 
-                                        BrokenBlockTile(sprite.rect.center, block_parts[0], 0.8, -17), 
-                                        BrokenBlockTile(sprite.rect.center, block_parts[1], -0.65, -19), 
+                        broken_tiles = [BrokenBlockTile(sprite.rect.center, block_parts[0], -0.75, -18),
+                                        BrokenBlockTile(
+                                            sprite.rect.center, block_parts[0], 0.8, -17),
+                                        BrokenBlockTile(
+                                            sprite.rect.center, block_parts[1], -0.65, -19),
                                         BrokenBlockTile(sprite.rect.center, block_parts[2], 0.75, -20)]
                         self.broken_blocks.add(broken_tiles)
                     else:
@@ -205,6 +223,26 @@ class Level:
             else:
                 print('starcoin', coin.star)
 
+    def horizontal_goomba_movement(self):
+        for goomba in self.goomba_sprites.sprites():
+            for sprite in self.terrain_sprites.sprites()+self.goomba_constraints_sprites.sprites():
+                if sprite.rect.colliderect(goomba.rect):
+                    goomba.reverse()
+    
+    def check_goomba_collision(self):
+        player=self.player.sprite
+
+        collided=pygame.sprite.spritecollide(player,self.goomba_sprites,False)
+        for goomba in collided:
+            if (collided_pos:=pygame.sprite.collide_mask(goomba,player)):
+                if collided_pos[1]<=5 and player.direction.y>=0:
+                    if goomba.is_alive:
+                        goomba.hit()
+                    else:
+                        player.direction.y=-7
+                elif goomba.is_alive:
+                    print('fungo')
+
     def run(self):
         self.player_on_ground = False
         self.terrain_sprites.update(self.screen_speed)
@@ -228,6 +266,11 @@ class Level:
         self.vertical_mushroom_collision()
         self.spawned_mushrooms.update(self.screen_speed)
         self.spawned_mushrooms.draw(self.display_surface)
+        
+        self.horizontal_goomba_movement()
+        self.goomba_constraints_sprites.update(self.screen_speed)
+        self.goomba_sprites.update(self.screen_speed)
+        self.goomba_sprites.draw(self.display_surface)
 
         self.player.update()
         self.position_surface.update(self.screen_speed)
@@ -238,6 +281,8 @@ class Level:
         self.vertical_block_collision()
         self.player.sprite.on_ground = self.player_on_ground
         self.player.draw(self.display_surface)
+
+        self.check_goomba_collision()
 
         self.check_coin_collision()
         self.check_mushroom_collision()
