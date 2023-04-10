@@ -52,6 +52,32 @@ class BlockTile(AnimatedTile):
         self.kill()
 
 
+class BrokenBlockTile(StaticTile):
+    def __init__(self, pos, surface, acc_x, vel_y) -> None:
+        self.real_image=surface
+        self.angle=0
+        super().__init__(pos, surface)
+        self.rect.center = pos
+        self.direction = pygame.math.Vector2(0, vel_y)
+        self.acceleration = pygame.math.Vector2(acc_x, 1.5)
+        self.minmax=abs(acc_x)*8
+
+    def animate(self):
+        self.image = pygame.transform.rotate(self.real_image, self.angle)
+        self.angle+=4
+        self.rect=self.image.get_rect(center=self.rect.center)
+        self.direction += self.acceleration
+        self.direction.x=max(min(self.direction.x,self.minmax),-self.minmax)
+        self.rect.center += self.direction
+
+    def update(self, velocity):
+        if self.rect.y>screen_height:
+            self.kill()
+        self.animate()
+        super().update(velocity)
+
+
+
 class SurpriseBlockTile(AnimatedTile):
     def __init__(self, pos, surfaces, times: int, type: str, spawn_surprise) -> None:
         super().__init__(pos, surfaces)

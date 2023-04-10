@@ -49,15 +49,17 @@ class Level:
         coin_layout = import_csv_layout(level_data['coin'])
         self.coin_sprites = self.create_tile_group('coin', coin_layout)
 
-        # spawned surprise
+        # block hit animations
         self.spawned_coins = pygame.sprite.Group()
         self.spawned_mushrooms = pygame.sprite.Group()
+        self.broken_blocks = pygame.sprite.Group()
 
         # if not self.map_width:
         #    self.map_width = len(layout_data[0])*tile_size-screen_width
 
     def create_tile_group(self, type: str, layout: list[list[str]]):
         tile_group = pygame.sprite.Group()
+        self.map_width=tile_size*200-1200
         for y, row in enumerate(layout):
             for x, val in enumerate(row):
                 if val != '-1':
@@ -133,7 +135,12 @@ class Level:
                     sprite.collide()
                     if isinstance(sprite, BlockTile):
                         player.direction.y = max(-6, player.direction.y)
-                        print('ok')
+                        block_parts = import_folder('graphics/block/broken')
+                        broken_tiles = [BrokenBlockTile(sprite.rect.center, block_parts[0], -0.75, -18), 
+                                        BrokenBlockTile(sprite.rect.center, block_parts[0], 0.8, -17), 
+                                        BrokenBlockTile(sprite.rect.center, block_parts[1], -0.65, -19), 
+                                        BrokenBlockTile(sprite.rect.center, block_parts[2], 0.75, -20)]
+                        self.broken_blocks.add(broken_tiles)
                     else:
                         player.direction.y = 0
                         player.rect.top = sprite.rect.bottom
@@ -149,14 +156,14 @@ class Level:
 
         if x_player < screen_width/4 and player.direction.x < 0:
             if position >= 0:
-                player.speed = 0 if player.rect.x <= 50 else player_speed
+                player.speed = 0 if player.rect.left <= 0 else player_speed
                 self.screen_speed = 0
             else:
                 self.screen_speed = -player_speed
                 player.speed = 0
-        elif x_player > 5*screen_width/8 and player.direction.x > 0:
+        elif x_player > 3*screen_width/4 and player.direction.x > 0:
             if position <= -self.map_width:
-                player.speed = 0 if player.rect.x >= screen_width-100 else player_speed
+                player.speed = 0 if player.rect.right >= screen_width else player_speed
                 self.screen_speed = 0
             else:
                 self.screen_speed = player_speed
@@ -208,6 +215,9 @@ class Level:
 
         self.q_block_sprites.update(self.screen_speed)
         self.q_block_sprites.draw(self.display_surface)
+
+        self.broken_blocks.update(self.screen_speed)
+        self.broken_blocks.draw(self.display_surface)
 
         self.spawned_coins.update(self.screen_speed)
         self.spawned_coins.draw(self.display_surface)
