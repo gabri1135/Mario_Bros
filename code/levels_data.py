@@ -12,4 +12,11 @@ level_2 = {
     'coin': 'levels/2/level_2_coins.csv'
 }
 
-levels = [level_1, level_2]
+level_3 = {
+    'terrain': 'levels/3/level_3_terrain.csv',
+    'block': 'levels/3/level_3_blocks.csv',
+    'q_block': 'levels/3/level_3_question blocks.csv',
+    'coin': 'levels/3/level_3_coins.csv'
+}
+
+levels = [level_1, level_2, level_3]
