@@ -34,10 +34,9 @@ class Player(pygame.sprite.Sprite):
         self.on_right = False
 
         # player collision
-        self.invincible=False
-        self.collision_time=None
-        self.invincible_duration=1500
-
+        self.invincible = False
+        self.collision_time = None
+        self.invincible_duration = 1500
 
     def import_character_assets(self):
         self.animations = {
@@ -57,13 +56,13 @@ class Player(pygame.sprite.Sprite):
         else:
             self.frame_index += 0.3
             if self.direction.y < 10:
-                if self.frame_index >= 5 or (self.direction.y>0 and self.frame_index!=4):
+                if self.frame_index >= 5 or (self.direction.y > 0 and self.frame_index != 4):
                     self.frame_index = 4
             else:
                 if self.frame_index >= 9:
                     self.frame_index = 8
-                elif self.frame_index<=4:
-                    self.frame_index=5
+                elif self.frame_index <= 4:
+                    self.frame_index = 5
 
         image = animation[int(self.frame_index)]
 
@@ -76,9 +75,9 @@ class Player(pygame.sprite.Sprite):
             self.image = image
             self.rect.bottomright = [
                 self.collision_rect.bottomright[0]+5, self.collision_rect.bottomright[1]]
-            
+
         if self.invincible:
-            alpha=self.wave_value()
+            alpha = self.wave_value()
             self.image.set_alpha(alpha)
         else:
             self.image.set_alpha(255)
@@ -96,25 +95,28 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.direction.x = 0
         elif self.on_left:
-            self.direction.x=-1
+            self.direction.x = -1
         else:
-            self.direction.x=1
+            self.direction.x = 1
 
         if keys[pygame.K_SPACE] and (self.on_ground or self.on_left or self. on_right):
             self.jump()
 
     def get_status(self):
         if self.on_left or self. on_right:
-            self.status='climb'
-        elif not 0<=self.direction.y<=1:
+            self.status = 'climb'
+        elif not 0 <= self.direction.y <= 1:
             self.status = 'jump'
         else:
             if self.direction.x != 0:
                 self.status = 'run'
-                
+
             else:
                 self.status = 'idle'
-        self.facing_left = self.direction.x < 0
+        if self.direction.x > 0:
+            self.facing_left = False
+        elif self.direction.x < 0:
+            self.facing_left = True
 
     def apply_gravity(self):
         if not (self.on_left or self.on_right):
@@ -130,13 +132,13 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.y = self.jump_speed+5
             if self.on_left:
-                self.direction.x=1
-                self.x_accell=-0.03
+                self.direction.x = 1
+                self.x_accell = -0.03
             else:
-                self.direction.x=-1
-                self.x_accell=0.03
-            self.on_left,self.on_right=False,False
-            self.frame_index=4
+                self.direction.x = -1
+                self.x_accell = 0.03
+            self.on_left, self.on_right = False, False
+            self.frame_index = 4
 
     # win setup
     def initialize_win(self, flagRect, frames):
@@ -156,29 +158,28 @@ class Player(pygame.sprite.Sprite):
 
     # mushroom collision
     def get_damage(self):
-        self.invincible=True
-        self.collision_time=pygame.time.get_ticks()
-    
+        self.invincible = True
+        self.collision_time = pygame.time.get_ticks()
+
     def invincible_animation(self):
         if self.invincible:
-            delay_time=pygame.time.get_ticks()-self.collision_time
-            if delay_time>self.invincible_duration:
-                self.invincible=False
+            delay_time = pygame.time.get_ticks()-self.collision_time
+            if delay_time > self.invincible_duration:
+                self.invincible = False
 
     def wave_value(self):
-        delay_time=(pygame.time.get_ticks()-self.collision_time)/30
-        if sin(delay_time) >0:
+        delay_time = (pygame.time.get_ticks()-self.collision_time)/30
+        if sin(delay_time) > 0:
             return 255
         return 0
-
 
     def update(self):
         if self.x_accell == 0:
             self.get_input()
         else:
-            self.direction.x+=self.x_accell
-            if -0.1<self.direction.x<0.1:
-                self.x_accell=0
+            self.direction.x += self.x_accell
+            if -0.1 < self.direction.x < 0.1:
+                self.x_accell = 0
 
         self.get_status()
         self.animate()
