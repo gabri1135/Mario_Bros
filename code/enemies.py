@@ -20,6 +20,7 @@ class Goomba(pygame.sprite.Sprite):
         self.real_x+=self.x_direction*2
     
     def hit(self):
+        self.x_direction=0
         self.is_alive=False
         self.image=self.dead_surface
         self.rect=self.image.get_rect(bottom=self.rect.bottom)
