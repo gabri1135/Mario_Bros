@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.1" orientation="orthogonal" renderorder="left-up" width="200" height="14" tilewidth="48" tileheight="48" infinite="0" nextlayerid="12" nextobjectid="1">
+  <editorsettings>
+  <export target="../0/level_0.csv" format="csv"/>
+ </editorsettings>
  <tileset firstgid="1" name="terrain" tilewidth="48" tileheight="48" tilecount="16" columns="4">
   <image source="../../graphics/terrain/terrain_tiles.png" width="192" height="192"/>
  </tileset>
