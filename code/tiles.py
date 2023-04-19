@@ -54,28 +54,28 @@ class BlockTile(AnimatedTile):
 
 class BrokenBlockTile(StaticTile):
     def __init__(self, pos, surface, acc_x, vel_y) -> None:
-        self.real_image=surface
-        self.angle=0
+        self.real_image = surface
+        self.angle = 0
         super().__init__(pos, surface)
         self.rect.center = pos
         self.direction = pygame.math.Vector2(0, vel_y)
         self.acceleration = pygame.math.Vector2(acc_x, 1.5)
-        self.minmax=abs(acc_x)*8
+        self.minmax = abs(acc_x)*8
 
     def animate(self):
         self.image = pygame.transform.rotate(self.real_image, self.angle)
-        self.angle+=4
-        self.rect=self.image.get_rect(center=self.rect.center)
+        self.angle += 4
+        self.rect = self.image.get_rect(center=self.rect.center)
         self.direction += self.acceleration
-        self.direction.x=max(min(self.direction.x,self.minmax),-self.minmax)
+        self.direction.x = max(
+            min(self.direction.x, self.minmax), -self.minmax)
         self.rect.center += self.direction
 
     def update(self, velocity):
-        if self.rect.y>screen_height:
+        if self.rect.y > screen_height:
             self.kill()
         self.animate()
         super().update(velocity)
-
 
 
 class SurpriseBlockTile(AnimatedTile):
@@ -140,18 +140,21 @@ class SpawnCoinTile(AnimatedTile):
 class SpawnMushroomTile(StaticTile):
     def __init__(self, pos, surface) -> None:
         super().__init__(pos, surface)
-        self.rect.bottomleft = (pos[0], pos[1])
-        self.y_direction = -4
+        self.rect.bottomleft = (pos[0], pos[1]-3)
+        self.direction = pygame.math.Vector2(3, -6)
 
     def apply_gravity(self):
-        self.y_direction = self.y_direction + 0.4
-        self.rect.y += self.y_direction
+        self.direction.y = self.direction.y + 0.6
+        self.rect.y += self.direction.y
+
+    def reverse(self):
+        self.direction.x = -self.direction.x
 
     def update(self, velocity):
         if self.rect.top > screen_height:
             self.kill()
 
-        if self.y_direction > -2:
-            self.rect.x += 2
+        if -3 < self.direction.y < 2:
+            self.rect.x += self.direction.x
 
         super().update(velocity)
