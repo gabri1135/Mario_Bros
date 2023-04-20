@@ -1,13 +1,13 @@
 import pygame
 
-from enemies import *
-from flagpole import Flag, FlagBase, FlagPole
-from game_data import LevelData
-from levels_data import levels
-from player import Player
-from settings import player_speed, screen_width, tile_size
-from tiles import *
-from utils import import_csv_layout, import_cut_graphics, import_folder
+from .enemies import *
+from .flagpole import Flag, FlagBase, FlagPole
+from .game_data import LevelData
+from .levels_data import levels
+from .player import Player
+from .settings import player_speed, screen_width, tile_size
+from .tiles import *
+from .utils import import_csv_layout, import_cut_graphics, import_folder
 
 
 class Level:

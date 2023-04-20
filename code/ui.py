@@ -1,8 +1,8 @@
 import pygame
 
-from game_data import LevelData
-from graphic_utils import outlined_surface
-from utils import import_folder
+from .game_data import LevelData
+from .graphic_utils import outlined_surface
+from .utils import import_folder
 
 
 class LevelUI():
