@@ -1,7 +1,9 @@
 from csv import reader
 from os import walk
-from settings import tile_size
+
 import pygame
+
+from .settings import tile_size
 
 
 def import_folder(path: str):
