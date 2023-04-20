@@ -10,14 +10,14 @@ class LevelData:
 
     def increment_health(self, value: int = 0.5):
         self.health += int(value*4)
-        if self.health>4:
-            self.health=4
+        if self.health > 4:
+            self.health = 4
 
-    def get_damage(self, value: int =0.25):
+    def get_damage(self, value: int = 0.25):
         self.health -= int(value*4)
 
-    def get_star(self,index):
-        self.stars[index]=True
+    def get_star(self, index):
+        self.stars[index] = True
 
     def game_over(self):
         self.health = 0

@@ -1,22 +1,25 @@
-import pygame,sys
+import pygame
+import sys
 
-from settings import screen_width,screen_height,screen_fps
+from settings import screen_width, screen_height, screen_fps
 from game import Game
 
-pygame.init()
-screen = pygame.display.set_mode((screen_width, screen_height))
-clock=pygame.time.Clock()
 
-game=Game(screen)
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    clock = pygame.time.Clock()
 
-while True:
-    for event in pygame.event.get():
-        if event.type==pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        
-    screen.fill('grey')
-    game.run()
+    game = Game(screen)
 
-    pygame.display.update()
-    clock.tick(screen_fps)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        screen.fill('grey')
+        game.run()
+
+        pygame.display.update()
+        clock.tick(screen_fps)
