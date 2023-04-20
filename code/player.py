@@ -14,7 +14,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 4
         self.animation_speed = 0.28
         self.image = self.animations['jump'][self.frame_index]
-        self.rect = self.image.get_rect(topleft=pos)
+        self.rect = self.image.get_rect(bottomleft=pos)
 
         # player movement
         self.direction = pygame.math.Vector2(0, 0)

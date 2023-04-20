@@ -59,8 +59,6 @@ class Level:
 
         # player setup
         self.player = pygame.sprite.GroupSingle()
-        player_sprite = Player((50, 50))
-        self.player.add(player_sprite)
 
         # flag setup
         self.flagbase = pygame.sprite.GroupSingle()
@@ -128,9 +126,13 @@ class Level:
                         tile = Tile((x*tile_size, y*tile_size))
                         tile_group.add(tile)
                     elif type == 'player_data':
-                        self.map_width = len(layout[0])*tile_size-screen_width
-                        tile = FlagBase((x*tile_size, (y+1)*tile_size))
-                        self.flagbase.add(tile)
+                        if val=='0':
+                            self.map_width = len(layout[0])*tile_size-screen_width
+                            tile = FlagBase((x*tile_size, (y+1)*tile_size))
+                            self.flagbase.add(tile)
+                        else:
+                            player_sprite = Player((x*tile_size, (y+1)*tile_size))
+                        self.player.add(player_sprite)
         return tile_group
 
     def horizontal_movement_collision(self):

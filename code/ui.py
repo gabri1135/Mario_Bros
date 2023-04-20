@@ -12,8 +12,8 @@ class LevelUI():
         self.coin_bag = pygame.image.load('graphics/ui/coin_bag.png').convert_alpha()
         self.health_surfaces=import_folder('graphics/ui/health')
 
-        self.no_starcoin_surf=pygame.image.load('graphics/starcoin/no_starcoin.png')
-        self.starcoin_surf=pygame.image.load('graphics/starcoin/starcoin_catch.png')
+        self.no_starcoin_surf=pygame.image.load('graphics/ui/starcoin/no.png')
+        self.starcoin_surf=pygame.image.load('graphics/ui/starcoin/catch.png')
 
     def outlined_text(self, text, pos, size=25):
         font = pygame.font.Font('graphics/font.ttf', size)
