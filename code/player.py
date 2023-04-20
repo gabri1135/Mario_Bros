@@ -168,7 +168,7 @@ class Player(pygame.sprite.Sprite):
                 self.invincible = False
 
     def wave_value(self):
-        delay_time = (pygame.time.get_ticks()-self.collision_time)/30
+        delay_time = (pygame.time.get_ticks()-self.collision_time)/35
         if sin(delay_time) > 0:
             return 255
         return 0
