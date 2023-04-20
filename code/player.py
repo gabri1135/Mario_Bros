@@ -2,8 +2,8 @@ from math import sin
 
 import pygame
 
-from .settings import player_speed
-from .utils import import_folder
+from settings import player_speed
+from utils import import_folder
 
 
 class Player(pygame.sprite.Sprite):

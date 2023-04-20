@@ -3,7 +3,7 @@ from os import walk
 
 import pygame
 
-from .settings import tile_size
+from settings import tile_size
 
 
 def import_folder(path: str):
