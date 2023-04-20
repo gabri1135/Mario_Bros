@@ -89,7 +89,7 @@ class SurpriseBlockTile(AnimatedTile):
     def collide(self):
         if self.times > 0:
             self.times -= 1
-            if self.collided>=0:
+            if self.collided >= 0:
                 self.collided = -2
             self.spawn_surprise(self)
 

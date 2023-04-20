@@ -26,4 +26,4 @@ class Game:
         self.levelUI.run()
 
         if self.currentGameData.health == 0:
-           self.game_over() 
+            self.game_over()

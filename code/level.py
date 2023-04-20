@@ -78,7 +78,7 @@ class Level:
         tile_group = pygame.sprite.Group()
         self.map_width = tile_size*200-1200
         for y, row in enumerate(layout):
-            y+=1
+            y += 1
             for x, val in enumerate(row):
                 if val != '-1':
                     if type == 'terrain':
@@ -126,12 +126,14 @@ class Level:
                         tile = Tile((x*tile_size, y*tile_size))
                         tile_group.add(tile)
                     elif type == 'player_data':
-                        if val=='0':
-                            self.map_width = len(layout[0])*tile_size-screen_width
+                        if val == '0':
+                            self.map_width = len(
+                                layout[0])*tile_size-screen_width
                             tile = FlagBase((x*tile_size, (y+1)*tile_size))
                             self.flagbase.add(tile)
                         else:
-                            player_sprite = Player((x*tile_size, (y+1)*tile_size))
+                            player_sprite = Player(
+                                (x*tile_size, (y+1)*tile_size))
                         self.player.add(player_sprite)
         return tile_group
 
@@ -222,7 +224,8 @@ class Level:
     def spawn_surprise(self, block):
         if block.type == 'coin':
             surfaces = import_folder('graphics/coin/animation')
-            surprise = SpawnCoinTile(surfaces, block, self.levelData.increment_coin)
+            surprise = SpawnCoinTile(
+                surfaces, block, self.levelData.increment_coin)
             self.spawned_coins.add(surprise)
         else:
             surface = pygame.image.load(
@@ -270,10 +273,11 @@ class Level:
         player = self.player.sprite
 
         for goomba in self.goomba_sprites.sprites():
-            if not player.collision_rect.colliderect(goomba):continue
+            if not player.collision_rect.colliderect(goomba):
+                continue
 
-            if (collided_pos:=pygame.sprite.collide_mask(player,goomba)):
-                if (collided_pos[1]>=47 and player.direction.y>=0) or player.invincible:
+            if (collided_pos := pygame.sprite.collide_mask(player, goomba)):
+                if (collided_pos[1] >= 47 and player.direction.y >= 0) or player.invincible:
                     if goomba.is_alive:
                         goomba.hit()
                     else:
@@ -333,7 +337,7 @@ class Level:
 
         self.horizontal_goomba_movement()
         self.goomba_constraints_sprites.update(self.screen_speed)
-        #self.goomba_constraints_sprites.draw(self.display_surface)
+        # self.goomba_constraints_sprites.draw(self.display_surface)
         self.goomba_sprites.update(self.screen_speed)
         self.goomba_sprites.draw(self.display_surface)
 
@@ -351,7 +355,7 @@ class Level:
             self.check_coin_collision()
             self.check_mushroom_collision()
 
-            #pygame.draw.rect(self.display_surface,(255,0,0),self.player.sprite.collision_rect)
+            # pygame.draw.rect(self.display_surface,(255,0,0),self.player.sprite.collision_rect)
 
         self.flag.update(self.screen_speed)
         self.flag.draw(self.display_surface)

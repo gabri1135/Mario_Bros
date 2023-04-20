@@ -20,7 +20,6 @@ class FlagBase(pygame.sprite.Sprite):
             'graphics/flagpole/flagbase.png').convert_alpha()
         self.rect = self.image.get_rect(bottomleft=pos)
 
-
     def update(self, velocity):
         self.rect.x -= velocity
 
@@ -37,12 +36,12 @@ class Flag(pygame.sprite.Sprite):
         self.image = pygame.image.load(
             'graphics/flagpole/red_flag.png').convert_alpha()
         self.rect.top = flagRect.top+26+247
-        self.max_heigth=flagRect.top+26
+        self.max_heigth = flagRect.top+26
         self.real_y = self.rect.y
         self.y_direction = y_speed
 
     def up_flag(self):
-        if self.rect.top>=self.max_heigth:
+        if self.rect.top >= self.max_heigth:
             self.real_y -= self.y_direction
             self.rect.y = int(self.real_y)
 
