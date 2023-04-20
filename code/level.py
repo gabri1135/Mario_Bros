@@ -1,30 +1,25 @@
 import pygame
-
-from settings import tile_size, screen_width, player_speed
-from tiles import *
 from enemies import *
-from player import Player
+from flagpole import Flag, FlagBase, FlagPole
+from game_data import LevelData
 from levels_data import levels
+from player import Player
+from settings import player_speed, screen_width, tile_size
+from tiles import *
 from utils import import_csv_layout, import_cut_graphics, import_folder
 
 
 class Level:
-    def __init__(self, level_id, surface, increment_coin) -> None:
+    def __init__(self, level_id, surface, levelData: LevelData) -> None:
+        self.level_id = level_id
         self.display_surface = surface
         self.screen_speed = 0
         level_data = levels[level_id]
+        self.levelData = levelData
+        self.win = False
 
         # map position
-        pos_tile = Tile((0, 0))
-        # todo: to set
-        self.map_width = 100000
-        self.position_surface = pygame.sprite.GroupSingle()
-        self.position_surface.add(pos_tile)
-
-        # player setup
-        self.player = pygame.sprite.GroupSingle()
-        player_sprite = Player((50, 50))
-        self.player.add(player_sprite)
+        self.pos_x = 0
 
         # terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -46,20 +41,37 @@ class Level:
             'q_block', q_block_layout)
 
         # coin setup
-        self.increment_coin = increment_coin
         coin_layout = import_csv_layout(level_data['coin'])
         self.coin_sprites = self.create_tile_group('coin', coin_layout)
 
         goomba_layout = import_csv_layout(level_data['goomba'])
         self.goomba_sprites = self.create_tile_group('goomba', goomba_layout)
 
-        goomba_constraints_layout = import_csv_layout(level_data['goomba_constraints'])
-        self.goomba_constraints_sprites = self.create_tile_group('goomba_constraints', goomba_constraints_layout)
+        goomba_constraints_layout = import_csv_layout(
+            level_data['goomba_constraints'])
+        self.goomba_constraints_sprites = self.create_tile_group(
+            'goomba_constraints', goomba_constraints_layout)
 
         # block hit animations
         self.spawned_coins = pygame.sprite.Group()
         self.spawned_mushrooms = pygame.sprite.Group()
         self.broken_blocks = pygame.sprite.Group()
+
+        # player setup
+        self.player = pygame.sprite.GroupSingle()
+        player_sprite = Player((50, 50))
+        self.player.add(player_sprite)
+
+        # flag setup
+        self.flagbase = pygame.sprite.GroupSingle()
+        self.flagpole = pygame.sprite.GroupSingle()
+        self.flag = pygame.sprite.GroupSingle()
+
+        player_data_layout = import_csv_layout(level_data['player_data'])
+        self.create_tile_group('player_data', player_data_layout)
+
+        self.flagpole.add(FlagPole(self.flagbase.sprite.rect))
+        self.flag.add(Flag(self.flagpole.sprite.rect))
 
         # if not self.map_width:
         #    self.map_width = len(layout_data[0])*tile_size-screen_width
@@ -68,6 +80,7 @@ class Level:
         tile_group = pygame.sprite.Group()
         self.map_width = tile_size*200-1200
         for y, row in enumerate(layout):
+            y+=1
             for x, val in enumerate(row):
                 if val != '-1':
                     if type == 'terrain':
@@ -106,51 +119,66 @@ class Level:
                         tile_group.add(tile)
                     elif type == 'goomba':
                         surfaces = import_folder('graphics/goomba/animation')
-                        dead_surface = pygame.image.load('graphics/goomba/dead_goomba.png').convert_alpha()
+                        dead_surface = pygame.image.load(
+                            'graphics/goomba/dead_goomba.png').convert_alpha()
                         tile = Goomba((x*tile_size, (y+1)*tile_size),
                                       surfaces, dead_surface, val == '0')
                         tile_group.add(tile)
                     elif type == 'goomba_constraints':
                         tile = Tile((x*tile_size, y*tile_size))
                         tile_group.add(tile)
+                    elif type == 'player_data':
+                        self.map_width = len(layout[0])*tile_size-screen_width
+                        tile = FlagBase((x*tile_size, (y+1)*tile_size))
+                        self.flagbase.add(tile)
         return tile_group
 
     def horizontal_movement_collision(self):
         player = self.player.sprite
-        player.rect.x += player.direction.x*player.speed
+        player.collision_rect.x += player.direction.x*player.speed
 
-        for sprite in self.terrain_sprites.sprites()+self.block_sprites.sprites()+self.q_block_sprites.sprites():
-            if sprite.rect.colliderect(player.rect):
+        player.on_left = False
+        player.on_right = False
+
+        for sprite in self.terrain_sprites.sprites()+self.block_sprites.sprites()+self.q_block_sprites.sprites()+[self.flagbase.sprite]:
+            if sprite.rect.colliderect(player.collision_rect):
                 if player.direction.x < 0:
-                    player.rect.left = sprite.rect.right
+                    player.collision_rect.left = sprite.rect.right
+                    if isinstance(sprite, StaticTile):
+                        player.on_left = True
+                        player.x_accell = 0
                 elif player.direction.x > 0:
-                    player.rect.right = sprite.rect.left
-                if player.direction.y > 0:
-                    self.player_on_ground = True
+                    player.collision_rect.right = sprite.rect.left
+                    if isinstance(sprite, StaticTile):
+                        player.on_right = True
+                        player.x_accell = 0
 
     def vertical_movement_collision(self):
         player = self.player.sprite
         player.apply_gravity()
 
-        for sprite in self.terrain_sprites.sprites():
-            if sprite.rect.colliderect(player.rect):
+        for sprite in self.terrain_sprites.sprites()+[self.flagbase.sprite]:
+            if sprite.rect.colliderect(player.collision_rect):
                 if player.direction.y < 0:  # jump
-                    player.rect.top = sprite.rect.bottom
+                    player.collision_rect.top = sprite.rect.bottom
                     player.direction.y = 0
                 elif player.direction.y > 0:  # fall
-                    player.rect.bottom = sprite.rect.top
+                    player.collision_rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     self.player_on_ground = True
+                    player.on_left = False
+                    player.on_right = False
 
     def vertical_block_collision(self):
         player = self.player.sprite
 
         for sprite in self.block_sprites.sprites()+self.q_block_sprites.sprites():
-            if sprite.rect.colliderect(player.rect):
-                if player.direction.y < 0:  # jump
+            if sprite.rect.colliderect(player.collision_rect):
+                if player.direction.y <= 0:  # jump
                     sprite.collide()
+                    player.direction.y = 0
+                    player.collision_rect.top = sprite.rect.bottom+4
                     if isinstance(sprite, BlockTile):
-                        player.direction.y = max(-6, player.direction.y)
                         block_parts = import_folder('graphics/block/broken')
                         broken_tiles = [BrokenBlockTile(sprite.rect.center, block_parts[0], -0.75, -18),
                                         BrokenBlockTile(
@@ -159,29 +187,28 @@ class Level:
                                             sprite.rect.center, block_parts[1], -0.65, -19),
                                         BrokenBlockTile(sprite.rect.center, block_parts[2], 0.75, -20)]
                         self.broken_blocks.add(broken_tiles)
-                    else:
-                        player.direction.y = 0
-                        player.rect.top = sprite.rect.bottom
                 elif player.direction.y > 0:  # fall
-                    player.rect.bottom = sprite.rect.top
+                    player.collision_rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     self.player_on_ground = True
+                    player.on_left = False
+                    player.on_right = False
 
     def x_scrool(self):
         player = self.player.sprite
         x_player = player.rect.centerx
-        position = self.position_surface.sprite.rect.x
 
         if x_player < screen_width/4 and player.direction.x < 0:
-            if position >= 0:
-                player.speed = 0 if player.rect.left <= 0 else player_speed
+            if self.pos_x <= 0:
+                player.speed = player.rect.left if player.rect.left <= player_speed else player_speed
                 self.screen_speed = 0
             else:
                 self.screen_speed = -player_speed
                 player.speed = 0
         elif x_player > 3*screen_width/4 and player.direction.x > 0:
-            if position <= -self.map_width:
-                player.speed = 0 if player.rect.right >= screen_width else player_speed
+            if self.pos_x >= self.map_width:
+                player.speed = (
+                    screen_width-player.rect.right) if player.rect.right >= screen_width-player_speed else player_speed
                 self.screen_speed = 0
             else:
                 self.screen_speed = player_speed
@@ -193,7 +220,7 @@ class Level:
     def spawn_surprise(self, block):
         if block.type == 'coin':
             surfaces = import_folder('graphics/coin/animation')
-            surprise = SpawnCoinTile(surfaces, block, self.increment_coin)
+            surprise = SpawnCoinTile(surfaces, block, self.levelData.increment_coin)
             self.spawned_coins.add(surprise)
         else:
             surface = pygame.image.load(
@@ -201,49 +228,84 @@ class Level:
             surprise = SpawnMushroomTile(block.rect.topleft, surface)
             self.spawned_mushrooms.add(surprise)
 
-    def vertical_mushroom_collision(self):
+    def mushroom_movement(self):
+        for mushroom in self.spawned_mushrooms.sprites():
+            for sprite in self.terrain_sprites.sprites()+self.block_sprites.sprites()+self.q_block_sprites.sprites():
+                if mushroom.rect.colliderect(sprite.rect):
+                    if mushroom.direction.x < 0:
+                        mushroom.rect.left = sprite.rect.right
+                    elif mushroom.direction.x > 0:
+                        mushroom.rect.right = sprite.rect.left
+                    mushroom.reverse()
+
         for mushroom in self.spawned_mushrooms.sprites():
             mushroom.apply_gravity()
             for sprite in self.terrain_sprites.sprites()+self.block_sprites.sprites()+self.q_block_sprites.sprites():
-
                 if mushroom.rect.colliderect(sprite.rect):
                     mushroom.rect.bottom = sprite.rect.top
-                    mushroom.y_direction = 0
+                    mushroom.direction.y = 0
 
     def check_mushroom_collision(self):
-        for m in pygame.sprite.spritecollide(self.player.sprite, self.spawned_mushrooms, True):
-            print('mushroom')
+        for _ in pygame.sprite.spritecollide(self.player.sprite, self.spawned_mushrooms, True):
+            self.levelData.increment_health(2)
 
     def check_coin_collision(self):
         collided_coin = pygame.sprite.spritecollide(
             self.player.sprite, self.coin_sprites, True, collided=pygame.sprite.collide_mask)
         for coin in collided_coin:
             if coin.star == None:
-                self.increment_coin(5)
+                self.levelData.increment_coin(5)
             else:
-                print('starcoin', coin.star)
+                self.levelData.get_star(coin.star)
 
     def horizontal_goomba_movement(self):
         for goomba in self.goomba_sprites.sprites():
             for sprite in self.terrain_sprites.sprites()+self.goomba_constraints_sprites.sprites():
                 if sprite.rect.colliderect(goomba.rect):
                     goomba.reverse()
-    
-    def check_goomba_collision(self):
-        player=self.player.sprite
 
-        collided=pygame.sprite.spritecollide(player,self.goomba_sprites,False)
-        for goomba in collided:
-            if (collided_pos:=pygame.sprite.collide_mask(goomba,player)):
-                if collided_pos[1]<=5 and player.direction.y>=0:
+    def check_goomba_collision(self):
+        player = self.player.sprite
+
+        for goomba in self.goomba_sprites.sprites():
+            if not player.collision_rect.colliderect(goomba):continue
+
+            if (collided_pos:=pygame.sprite.collide_mask(player,goomba)):
+                if (collided_pos[1]>=47 and player.direction.y>=0) or player.invincible:
                     if goomba.is_alive:
                         goomba.hit()
                     else:
-                        player.direction.y=-7
+                        player.direction.y = -7
                 elif goomba.is_alive:
-                    print('fungo')
+                    self.levelData.get_damage()
+                    player.get_damage()
+
+    def check_dead(self):
+        if self.player.sprite.collision_rect.top > screen_height+64:
+            self.levelData.game_over()
+
+    def check_win(self):
+        player = self.player.sprite
+        flagpole = self.flagpole.sprite
+        if r := pygame.sprite.collide_mask(flagpole, player):
+            if r[1] < 326:
+                self.win = True
+                self.screen_speed = 0
+                player.speed = player_speed
+
+                self.descent_frame = (
+                    flagpole.rect.bottom-34-player.collision_rect.bottom)//4
+                y_speed = player.initialize_win(
+                    flagpole.rect, self.descent_frame)
+                self.flag.sprite.initialize_win(flagpole.rect, y_speed)
 
     def run(self):
+        if not self.win:
+            self.check_win()
+            self.check_dead()
+
+        self.pos_x += self.screen_speed
+
         self.player_on_ground = False
         self.terrain_sprites.update(self.screen_speed)
         self.terrain_sprites.draw(self.display_surface)
@@ -263,26 +325,44 @@ class Level:
         self.coin_sprites.update(self.screen_speed)
         self.coin_sprites.draw(self.display_surface)
 
-        self.vertical_mushroom_collision()
+        self.mushroom_movement()
         self.spawned_mushrooms.update(self.screen_speed)
         self.spawned_mushrooms.draw(self.display_surface)
-        
+
         self.horizontal_goomba_movement()
         self.goomba_constraints_sprites.update(self.screen_speed)
+        #self.goomba_constraints_sprites.draw(self.display_surface)
         self.goomba_sprites.update(self.screen_speed)
         self.goomba_sprites.draw(self.display_surface)
 
-        self.player.update()
-        self.position_surface.update(self.screen_speed)
-        self.x_scrool()
+        if not self.win:
+            self.player.update()
+            self.x_scrool()
 
-        self.horizontal_movement_collision()
-        self.vertical_movement_collision()
-        self.vertical_block_collision()
-        self.player.sprite.on_ground = self.player_on_ground
+            self.horizontal_movement_collision()
+            self.vertical_movement_collision()
+            self.vertical_block_collision()
+            self.player.sprite.on_ground = self.player_on_ground
+
+            self.check_goomba_collision()
+
+            self.check_coin_collision()
+            self.check_mushroom_collision()
+
+            #pygame.draw.rect(self.display_surface,(255,0,0),self.player.sprite.collision_rect)
+
+        self.flag.update(self.screen_speed)
+        self.flag.draw(self.display_surface)
+
+        self.flagpole.update(self.screen_speed)
+        self.flagpole.draw(self.display_surface)
+
         self.player.draw(self.display_surface)
 
-        self.check_goomba_collision()
+        self.flagbase.update(self.screen_speed)
+        self.flagbase.draw(self.display_surface)
 
-        self.check_coin_collision()
-        self.check_mushroom_collision()
+        if self.win and self.descent_frame > 0:
+            self.player.sprite.down_flag()
+            self.flag.sprite.up_flag()
+            self.descent_frame -= 1
