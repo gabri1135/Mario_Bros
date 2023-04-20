@@ -21,6 +21,7 @@ class StaticTile(Tile):
         super().__init__(pos)
         self.image = surface
         self.rect = self.image.get_rect(topleft=pos)
+        self.collision_rect=self.rect.copy()
 
 
 class AnimatedTile(Tile):
@@ -32,6 +33,7 @@ class AnimatedTile(Tile):
         self.animation_speed = 0.2
         self.image = self.surfaces[self.surface_id]
         self.rect = self.image.get_rect(topleft=pos)
+        self.collision_rect=self.rect.copy()
 
     def animate(self):
         self.surface_id += self.animation_speed

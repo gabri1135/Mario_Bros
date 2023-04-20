@@ -237,7 +237,7 @@ class Level:
     def mushroom_movement(self):
         for mushroom in self.spawned_mushrooms.sprites():
             for sprite in self.terrain_sprites.sprites()+self.block_sprites.sprites()+self.q_block_sprites.sprites():
-                if mushroom.rect.colliderect(sprite.rect):
+                if mushroom.rect.colliderect(sprite.collision_rect):
                     if mushroom.direction.x < 0:
                         mushroom.rect.left = sprite.rect.right
                     elif mushroom.direction.x > 0:
