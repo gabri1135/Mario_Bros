@@ -1,8 +1,8 @@
-
 from typing import Optional
+
 import pygame
 
-from settings import tile_size, screen_height
+from .settings import screen_height, tile_size
 
 
 class Tile(pygame.sprite.Sprite):

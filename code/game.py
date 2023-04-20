@@ -1,6 +1,6 @@
-from level import Level
-from ui import LevelUI
-from game_data import LevelData
+from .game_data import LevelData
+from .level import Level
+from .ui import LevelUI
 
 
 class Game:

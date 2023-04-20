@@ -1,5 +1,6 @@
-import pygame
 from time import time
+
+import pygame
 
 
 class Goomba(pygame.sprite.Sprite):
