@@ -247,7 +247,7 @@ class Level:
 
     def check_mushroom_collision(self):
         for _ in pygame.sprite.spritecollide(self.player.sprite, self.spawned_mushrooms, True):
-            self.levelData.increment_health(2)
+            self.levelData.increment_health()
 
     def check_coin_collision(self):
         collided_coin = pygame.sprite.spritecollide(

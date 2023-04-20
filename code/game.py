@@ -1,15 +1,29 @@
 from level import Level
+from ui import LevelUI
+from game_data import LevelData
 
 
 class Game:
     def __init__(self, surface) -> None:
         self.display_surface = surface
-        self.coin_amount=0
-        
-        self.level = Level(0, self.display_surface, self.increment_coin)
+        #self.gameData = GameData()
+        self.start_level(2)
 
-    def increment_coin(self, coin_value:int)->int:
-        self.coin_amount+=coin_value
+    def start_level(self, level_id):
+        self.currentGameData = LevelData()
+        self.level = Level(level_id, self.display_surface,
+                           self.currentGameData)
+        self.levelUI = LevelUI(self.display_surface, self.currentGameData)
+
+    def game_over(self):
+        print('gameover')
+        quit()
+        #self.level = Level(level_id, self.display_surface, self.gameData)
+        pass
 
     def run(self):
         self.level.run()
+        self.levelUI.run()
+
+        if self.currentGameData.health == 0:
+           self.game_over() 
