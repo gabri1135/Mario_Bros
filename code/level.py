@@ -77,7 +77,6 @@ class Level:
 
     def create_tile_group(self, type: str, layout: list[list[str]]):
         tile_group = pygame.sprite.Group()
-        self.map_width = tile_size*200-1200
         for y, row in enumerate(layout):
             y += 1
             for x, val in enumerate(row):
@@ -133,9 +132,10 @@ class Level:
                             tile = FlagBase((x*tile_size, (y+1)*tile_size))
                             self.flagbase.add(tile)
                         else:
+                            self.map_width = tile_size*len(row)-screen_width
                             player_sprite = Player(
                                 (x*tile_size, (y+1)*tile_size))
-                        self.player.add(player_sprite)
+                            self.player.add(player_sprite)                 
         return tile_group
 
     def horizontal_movement_collision(self):

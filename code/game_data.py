@@ -1,7 +1,7 @@
 class LevelData:
     def __init__(self) -> None:
         self.coin_amount: int = 0
-        self.health: int = 1
+        self.health: int = 4
         self.record: int = -1
         self.stars: list[bool] = [False, False, False]
 
