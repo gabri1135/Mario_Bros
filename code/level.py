@@ -77,17 +77,20 @@ class Level:
 
     def create_tile_group(self, type: str, layout: list[list[str]]):
         tile_group = pygame.sprite.Group()
+        if type == 'terrain':
+            surfaces = import_cut_graphics(
+                'graphics/terrain/terrain_tiles.png')
+        elif type != 'player_data':
+            surfaces = import_folder(f'graphics/{type}/animation')
         for y, row in enumerate(layout):
             y += 1
             for x, val in enumerate(row):
                 if val != '-1':
                     if type == 'terrain':
-                        surface = import_cut_graphics(
-                            int(val), 'graphics/terrain/terrain_tiles.png')
-                        tile = StaticTile((x*tile_size, y*tile_size), surface)
+                        tile = StaticTile(
+                            (x*tile_size, y*tile_size), surfaces[int(val)])
                         tile_group.add(tile)
                     elif type == 'block':
-                        surfaces = import_folder('graphics/block/animation')
                         if val == '0':
                             tile = BlockTile(
                                 (x*tile_size, y*tile_size), surfaces)
@@ -96,7 +99,6 @@ class Level:
                                 (x*tile_size, y*tile_size), surfaces, 1 if val == '1' else 10, 'coin', self.spawn_surprise)
                         tile_group.add(tile)
                     elif type == 'q_block':
-                        surfaces = import_folder('graphics/q_block/animation')
                         if val == '0':
                             tile = SurpriseBlockTile(
                                 (x*tile_size, y*tile_size), surfaces, 1, 'mushroom', self.spawn_surprise)
@@ -106,17 +108,15 @@ class Level:
                         tile_group.add(tile)
                     elif type == 'coin':
                         if val == '0':
-                            surfaces = import_folder('graphics/coin/animation')
                             tile = CoinTile(
                                 (x*tile_size, y*tile_size), surfaces)
                         else:
-                            surfaces = import_folder(
+                            star_surfaces = import_folder(
                                 'graphics/starcoin/animation')
                             tile = CoinTile(
-                                (x*tile_size, y*tile_size), surfaces, star=int(val)-1)
+                                (x*tile_size, y*tile_size), star_surfaces, star=int(val)-1)
                         tile_group.add(tile)
                     elif type == 'goomba':
-                        surfaces = import_folder('graphics/goomba/animation')
                         dead_surface = pygame.image.load(
                             'graphics/goomba/dead_goomba.png').convert_alpha()
                         tile = Goomba((x*tile_size, (y+1)*tile_size),
@@ -127,15 +127,14 @@ class Level:
                         tile_group.add(tile)
                     elif type == 'player_data':
                         if val == '0':
-                            self.map_width = len(
-                                layout[0])*tile_size-screen_width
+                            self.map_width = len(row)*tile_size-screen_width
                             tile = FlagBase((x*tile_size, (y+1)*tile_size))
                             self.flagbase.add(tile)
                         else:
                             self.map_width = tile_size*len(row)-screen_width
                             player_sprite = Player(
                                 (x*tile_size, (y+1)*tile_size))
-                            self.player.add(player_sprite)                 
+                            self.player.add(player_sprite)
         return tile_group
 
     def horizontal_movement_collision(self):
