@@ -1,8 +1,8 @@
 import pygame
 import sys
 
-from settings import screen_width, screen_height, screen_fps
-from game import Game
+from .settings import screen_width, screen_height, screen_fps
+from .game import Game
 
 
 def main():
