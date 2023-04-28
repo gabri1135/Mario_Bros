@@ -1,7 +1,7 @@
 import pygame
 
 from .game_data import LevelData
-from .graphic_utils import outlined_surface
+from .graphic_utils import outlined_text
 from .utils import import_folder
 
 
@@ -19,13 +19,6 @@ class LevelUI():
         self.starcoin_surf = pygame.image.load(
             'graphics/ui/starcoin/catch.png')
 
-    def outlined_text(self, text, pos, size=25):
-        font = pygame.font.Font('graphics/font.ttf', size)
-        surf = font.render(str(text), True, (255, 255, 255))
-        rect = surf.get_rect(topleft=pos)
-        outlined_surface(surf, rect.center, self.display_surface)
-        self.display_surface.blit(surf, rect)
-
     def run(self):
         # health ui
         self.display_surface.blit(
@@ -33,7 +26,8 @@ class LevelUI():
 
         # coins ui
         self.display_surface.blit(self.coin_bag, (20, 70))
-        self.outlined_text(self.levelData.coin_amount, (50, 83))
+        self.display_surface.blit(
+            *outlined_text(self.levelData.coin_amount, topleft=(45, 78)))
 
         for i in range(3):
             x = 100+40*i
