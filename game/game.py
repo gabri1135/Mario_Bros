@@ -1,5 +1,8 @@
+import pygame
+
 from .game_data import LevelData
 from .level import Level
+from .pop_up import buildPopUp
 from .ui import LevelUI
 
 
@@ -24,6 +27,12 @@ class Game:
     def run(self):
         self.level.run()
         self.levelUI.run()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            if buildPopUp(self.display_surface) == 1:
+                print('overworld')
+                quit()
 
         if self.currentGameData.health == 0:
             self.game_over()
