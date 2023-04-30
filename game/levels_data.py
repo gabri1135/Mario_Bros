@@ -5,7 +5,9 @@ level_0 = {
     'coin': 'levels/0/level_0_coins.csv',
     'goomba': 'levels/0/level_0_goomba.csv',
     'goomba_constraints': 'levels/0/level_0_goomba_constraints.csv',
-    'player_data': 'levels/0/level_0_player_data.csv'
+    'player_data': 'levels/0/level_0_player_data.csv',
+    'node_pos':(300,360)
+
 }
 
 level_1 = {
@@ -15,7 +17,9 @@ level_1 = {
     'coin': 'levels/1/level_1_coins.csv',
     'goomba': 'levels/1/level_1_goomba.csv',
     'goomba_constraints': 'levels/1/level_1_goomba_constraints.csv',
-    'player_data': 'levels/1/level_1_player_data.csv'
+    'player_data': 'levels/1/level_1_player_data.csv',
+    'node_pos':(600,360)
+
 }
 
 level_2 = {
@@ -25,7 +29,9 @@ level_2 = {
     'coin': 'levels/2/level_2_coins.csv',
     'goomba': 'levels/2/level_2_goomba.csv',
     'goomba_constraints': 'levels/2/level_2_goomba_constraints.csv',
-    'player_data': 'levels/2/level_2_player_data.csv'
+    'player_data': 'levels/2/level_2_player_data.csv',
+    'node_pos':(900,360)
+
 }
 
 levels = [level_0, level_1, level_2]
