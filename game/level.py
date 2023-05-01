@@ -6,12 +6,12 @@ from .levels_settings import levels
 from .player import Player
 from .settings import player_speed, screen_width, tile_size
 from .tiles import *
-from .user_data import LevelData
+from .user_data import CurrentLevelData
 from .utils import import_csv_layout, import_cut_graphics, import_folder
 
 
 class Level:
-    def __init__(self, level_id, surface, levelData: LevelData, create_overworld) -> None:
+    def __init__(self, level_id, surface, levelData: CurrentLevelData, create_overworld) -> None:
         # set values
         self.level_id = level_id
         self.display_surface = surface
@@ -241,7 +241,7 @@ class Level:
     def mushroom_movement(self):
         for mushroom in self.spawned_mushrooms.sprites():
             for sprite in self.terrain_sprites.sprites()+self.block_sprites.sprites()+self.q_block_sprites.sprites():
-                if mushroom.rect.colliderect(sprite.collision_rect):
+                if mushroom.rect.colliderect(sprite.rect):
                     if mushroom.direction.x < 0:
                         mushroom.rect.left = sprite.rect.right
                     elif mushroom.direction.x > 0:
@@ -295,7 +295,7 @@ class Level:
         if self.player.sprite.collision_rect.top > screen_height+64:
             self.levelData.game_over()
         if self.levelData.health <= 0:
-            self.create_overworld(self.level_id, 0)
+            self.create_overworld(self.level_id, 0, save=True)
 
     def check_win(self):
         player = self.player.sprite
@@ -380,4 +380,4 @@ class Level:
             self.flag.sprite.up_flag()
             self.descent_frame -= 1
         elif self.win and self.descent_frame == 0:
-            self.create_overworld(self.level_id, self.level_unlock)
+            self.create_overworld(self.level_id, self.level_unlock, save=True)
