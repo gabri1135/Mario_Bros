@@ -21,7 +21,6 @@ class StaticTile(Tile):
         super().__init__(pos)
         self.image = surface
         self.rect = self.image.get_rect(topleft=pos)
-        self.collision_rect=self.rect.copy()
 
 
 class AnimatedTile(Tile):
@@ -33,7 +32,6 @@ class AnimatedTile(Tile):
         self.animation_speed = 0.2
         self.image = self.surfaces[self.surface_id]
         self.rect = self.image.get_rect(topleft=pos)
-        self.collision_rect=self.rect.copy()
 
     def animate(self):
         self.surface_id += self.animation_speed
@@ -154,7 +152,7 @@ class SpawnMushroomTile(StaticTile):
         self.direction.x = -self.direction.x
 
     def update(self, velocity):
-        if self.rect.top > screen_height:
+        if self.rect.top > screen_height+tile_size:
             self.kill()
 
         if -3 < self.direction.y < 2:
