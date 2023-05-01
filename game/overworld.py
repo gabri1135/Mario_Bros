@@ -1,6 +1,7 @@
 import pygame
 
 from .levels_settings import levels
+from .ui import OverWorldUI
 
 
 class Node(pygame.sprite.Sprite):
@@ -27,11 +28,12 @@ class Icon(pygame.sprite.Sprite):
 
 
 class OverWorld:
-    def __init__(self, current_level, unlocked, surface, create_level) -> None:
+    def __init__(self, current_level, unlocked, ui, surface, create_level) -> None:
         # set values
         self.unlocked = unlocked
         self.create_level = create_level
         self.current_level = current_level
+        self.ui: OverWorldUI = ui
         self.display_surface = surface
 
         self.setup_nodes()
@@ -96,6 +98,7 @@ class OverWorld:
             if target_node.detection_zone.collidepoint(self.icon.sprite.pos):
                 self.moving = False
                 self.move_direction = pygame.math.Vector2(0, 0)
+                self.ui.level_id = self.current_level
 
     def input_timer(self):
         if not self.allow_input:
