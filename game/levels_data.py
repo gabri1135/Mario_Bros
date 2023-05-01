@@ -6,8 +6,8 @@ level_0 = {
     'goomba': 'levels/0/level_0_goomba.csv',
     'goomba_constraints': 'levels/0/level_0_goomba_constraints.csv',
     'player_data': 'levels/0/level_0_player_data.csv',
-    'node_pos':(300,360)
-
+    'node_pos': (300, 360),
+    'unlock': 1
 }
 
 level_1 = {
@@ -18,8 +18,8 @@ level_1 = {
     'goomba': 'levels/1/level_1_goomba.csv',
     'goomba_constraints': 'levels/1/level_1_goomba_constraints.csv',
     'player_data': 'levels/1/level_1_player_data.csv',
-    'node_pos':(600,360)
-
+    'node_pos': (600, 360),
+    'unlock': 2
 }
 
 level_2 = {
@@ -30,8 +30,8 @@ level_2 = {
     'goomba': 'levels/2/level_2_goomba.csv',
     'goomba_constraints': 'levels/2/level_2_goomba_constraints.csv',
     'player_data': 'levels/2/level_2_player_data.csv',
-    'node_pos':(900,360)
-
+    'node_pos': (900, 360),
+    'unlock': 2
 }
 
 levels = [level_0, level_1, level_2]

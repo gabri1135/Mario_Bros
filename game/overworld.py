@@ -27,10 +27,12 @@ class Icon(pygame.sprite.Sprite):
 
 
 class OverWorld:
-    def __init__(self, current_level, unlocked, surface) -> None:
-        self.display_surface = surface
-        self.current_level = current_level
+    def __init__(self, current_level, unlocked, surface, create_level) -> None:
+        # set values
         self.unlocked = unlocked
+        self.create_level = create_level
+        self.current_level = current_level
+        self.display_surface = surface
 
         self.setup_nodes()
         self.setup_icon()
@@ -54,9 +56,11 @@ class OverWorld:
                       self.current_level].rect.midbottom))
 
     def draw_line(self):
-        points = [level['node_pos']
-                  for index, level in enumerate(levels) if index <= self.unlocked]
-        pygame.draw.lines(self.display_surface, '#a04f45', False, points, 6)
+        if self.unlocked > 0:
+            points = [level['node_pos']
+                      for index, level in enumerate(levels) if index <= self.unlocked]
+            pygame.draw.lines(self.display_surface,
+                              '#a04f45', False, points, 6)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -69,6 +73,8 @@ class OverWorld:
                 self.direction = self.calculate_direction('next')
                 self.current_level += 1
                 self.moving = True
+            elif keys[pygame.K_RETURN]:
+                self.create_level(self.current_level)
 
     def calculate_direction(self, target):
         start = pygame.math.Vector2(

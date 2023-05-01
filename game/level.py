@@ -11,13 +11,18 @@ from .utils import import_csv_layout, import_cut_graphics, import_folder
 
 
 class Level:
-    def __init__(self, level_id, surface, levelData: LevelData) -> None:
+    def __init__(self, level_id, surface, levelData: LevelData, create_overworld) -> None:
+        # set values
         self.level_id = level_id
         self.display_surface = surface
-        self.screen_speed = 0
+        self.create_overworld = create_overworld
         level_data = levels[level_id]
-        self.levelData = levelData
+
+        # levelData setup
         self.win = False
+        self.screen_speed = 0
+        self.levelData = levelData
+        self.level_unlock = level_data['unlock']
 
         # map position
         self.pos_x = 0
@@ -45,9 +50,11 @@ class Level:
         coin_layout = import_csv_layout(level_data['coin'])
         self.coin_sprites = self.create_tile_group('coin', coin_layout)
 
+        # goomba setup
         goomba_layout = import_csv_layout(level_data['goomba'])
         self.goomba_sprites = self.create_tile_group('goomba', goomba_layout)
 
+        # goomba constraints setup
         goomba_constraints_layout = import_csv_layout(
             level_data['goomba_constraints'])
         self.goomba_constraints_sprites = self.create_tile_group(
@@ -66,14 +73,12 @@ class Level:
         self.flagpole = pygame.sprite.GroupSingle()
         self.flag = pygame.sprite.GroupSingle()
 
+        # load player and flagbase
         player_data_layout = import_csv_layout(level_data['player_data'])
         self.create_tile_group('player_data', player_data_layout)
 
         self.flagpole.add(FlagPole(self.flagbase.sprite.rect))
         self.flag.add(Flag(self.flagpole.sprite.rect))
-
-        # if not self.map_width:
-        #    self.map_width = len(layout_data[0])*tile_size-screen_width
 
     def create_tile_group(self, type: str, layout: list[list[str]]):
         tile_group = pygame.sprite.Group()
@@ -289,6 +294,8 @@ class Level:
     def check_dead(self):
         if self.player.sprite.collision_rect.top > screen_height+64:
             self.levelData.game_over()
+        if self.levelData.health <= 0:
+            self.create_overworld(self.level_id, 0)
 
     def check_win(self):
         player = self.player.sprite
@@ -372,3 +379,5 @@ class Level:
             self.player.sprite.down_flag()
             self.flag.sprite.up_flag()
             self.descent_frame -= 1
+        elif self.win and self.descent_frame == 0:
+            self.create_overworld(self.level_id, self.level_unlock)
