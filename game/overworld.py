@@ -1,6 +1,6 @@
 import pygame
 
-from .levels_data import levels
+from .levels_settings import levels
 
 
 class Node(pygame.sprite.Sprite):

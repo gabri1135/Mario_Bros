@@ -1,7 +1,7 @@
 import pygame
 
-from .game_data import LevelData
 from .graphic_utils import outlined_text
+from .user_data import LevelData
 from .utils import import_folder
 
 
